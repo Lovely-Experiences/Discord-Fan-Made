@@ -2,12 +2,17 @@
 const Express = require("express");
 const FileSystem = require("fs");
 const Bcrypt = require('bcrypt');
+const Keyv = require("keyv");
+const { v4: CreateUUID } = require("uuid");
 const Configuration = require("./configuration.json");
 const ExpressApplication = Express();
+const AccountsDatabase = new Keyv("sqlite://database/accounts.sqlite");
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * This functions validates the username and password of an account.
- * @param {{Username: string, Password: string}} ValidateObject 
+ * @param {{Username: string, Password: string}} ValidateObject
  * @returns {{Passed: boolean, FailureReason: string|null}} ValidateResult
  */
 function ValidateAccount(ValidateObject) {
@@ -34,26 +39,40 @@ function ValidateAccount(ValidateObject) {
     }
 
     // Check if the password is not just letters and numbers.
-    let ContainsSpecialCharacters = false;
+    let PasswordContainsSpecialCharacters = false;
     for (I = 0; I < Password.length; I++) {
         const Character = Password.charAt(I);
         if (Characters.indexOf(Character.toUpperCase()) == -1) {
-            ContainsSpecialCharacters = true;
+            PasswordContainsSpecialCharacters = true;
         }
     }
-    if (ContainsSpecialCharacters == false) {
+    if (PasswordContainsSpecialCharacters == false) {
         return { Passed: false, FailureReason: "Password must contain a special character." };
+    }
+
+    // Check if the username is only letters and numbers.
+    let UsernameContainsSpecialCharacters = false;
+    for (I = 0; I < Username.length; I++) {
+        const Character = Username.charAt(I);
+        if (Characters.indexOf(Character.toUpperCase()) == -1) {
+            UsernameContainsSpecialCharacters = true;
+        }
+    }
+    if (UsernameContainsSpecialCharacters == true) {
+        return { Passed: false, FailureReason: "Username can only be letters and numbers." };
     }
 
     // Return passed as true if no checks failed.
     return { Passed: true, FailureReason: null };
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * This functions creates an account. Uses the validator function to validate everything.
  * @param {string} Username 
  * @param {string} Password
- * @returns {Promise<{Success: boolean, Error: string|null, Account: {Username: string, PasswordHash: string}|null}>} SuccessResult 
+ * @returns {Promise<{Success: boolean, Error: string|null, Account: {Username: string, PasswordHash: string, UID: string}|null}>} SuccessResult 
  */
 async function CreateAccount(Username, Password) {
     // Validate the account details, and handle failure accordingly.
@@ -72,22 +91,40 @@ async function CreateAccount(Username, Password) {
         PasswordHashSuccess = false;
     }
 
+    // Create account's user ID.
+    const UID = CreateUUID();
+
+    // Save the account to the database, note that the plain text password is NOT saved.
+    // Accounts are saved by username in all lowercase.
+    let AccountSaveSuccess = true;
+    try {
+        await AccountsDatabase.set(Username.toLowerCase(), { Username: Username, PasswordHash: PasswordHash, UID: UID });
+    } catch (Error) {
+        AccountSaveSuccess = false;
+    }
+
     // If nothing went wrong, the account is created.
-    if (PasswordHashSuccess == true) {
-        return { Success: true, Error: false, Account: { Username: Username, PasswordHash: PasswordHash } };
+    if (PasswordHashSuccess == true && AccountSaveSuccess == true) {
+        return { Success: true, Error: false, Account: { Username: Username, PasswordHash: PasswordHash, UID: UID } };
     } else {
         return { Success: false, Error: "An unexpected error occurred.", Account: null };
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // This functions retrieves an account object.
-function GetAccount() {
+function GetAccountFromUsername() {
 
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Start listening to requests made to the provided port.
 ExpressApplication.listen(Configuration.Port, async function () {
     console.log(`Listening to port ${Configuration.Port}.`);
-    console.log(await CreateAccount("Billy", "test!!!"));
+    console.log(await CreateAccount("Billy1", "test!!!"));
     return;
 });
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
