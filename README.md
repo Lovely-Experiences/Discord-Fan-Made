@@ -41,7 +41,7 @@ Explanations coming soon...
 
 # Startup
 
-Once you have installed the dependencies, you are ready to start the project. You can start it by executing the following command. You will be asked to set the admin password on startup.
+Once you have installed the dependencies, you are ready to start the project. You can start it by executing the following command. You will be asked to set the admin password on the first startup.
 
 ```shell
 node .
