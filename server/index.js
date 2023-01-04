@@ -4,6 +4,7 @@ const FileSystem = require("fs");
 const Bcrypt = require('bcrypt');
 const Keyv = require("keyv");
 const { v4: CreateUUID } = require("uuid");
+const ConsolePrompt = require('prompt-sync')();
 const Configuration = require("./configuration.json");
 const ExpressApplication = Express();
 const AccountsDatabase = new Keyv("sqlite://database/accounts.sqlite");
@@ -124,9 +125,24 @@ async function CreateAccount(Username, Password) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// This functions retrieves an account object.
-function GetAccountFromUsername() {
-
+// Create an admin account if the account "admin" does not already exist.
+try {
+    (async function () {
+        const UsernameTaken = await AccountsDatabase.has("admin");
+        if (UsernameTaken == true) {
+            console.log("Admin account creation skipped, username 'admin' is already in use.");
+        } else {
+            const Password = ConsolePrompt("Please create the password for the admin account: ");
+            const Account = await CreateAccount("admin", Password);
+            if (Account.Success == true) {
+                console.log("Admin account creation was a success!");
+            } else {
+                throw Account.Error;
+            }
+        }
+    })();
+} catch (Error) {
+    throw `Admin creation error: ${Error}`;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +150,6 @@ function GetAccountFromUsername() {
 // Start listening to requests made to the provided port.
 ExpressApplication.listen(Configuration.Port, async function () {
     console.log(`Listening to port ${Configuration.Port}.`);
-    console.log(await CreateAccount("Billy1", "test!!!"));
     return;
 });
 
