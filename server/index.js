@@ -125,14 +125,22 @@ async function CreateAccount(Username, Password) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Create an admin account if the account "admin" does not already exist.
+// Start listening to requests made to the provided port.
+ExpressApplication.listen(Configuration.Port, async function () {
+    console.log(`Listening to port ${Configuration.Port}.`);
+    return;
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Ask to create an admin account if the account "admin" does not already exist.
 try {
     (async function () {
         const UsernameTaken = await AccountsDatabase.has("admin");
         if (UsernameTaken == true) {
             console.log("Admin account creation skipped, username 'admin' is already in use.");
         } else {
-            const Password = ConsolePrompt("Please create the password for the admin account: ");
+            const Password = ConsolePrompt("Please create the password for the admin account: ", { echo: "*" });
             const Account = await CreateAccount("admin", Password);
             if (Account.Success == true) {
                 console.log("Admin account creation was a success!");
@@ -144,13 +152,5 @@ try {
 } catch (Error) {
     throw `Admin creation error: ${Error}`;
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Start listening to requests made to the provided port.
-ExpressApplication.listen(Configuration.Port, async function () {
-    console.log(`Listening to port ${Configuration.Port}.`);
-    return;
-});
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
