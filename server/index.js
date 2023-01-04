@@ -13,9 +13,9 @@ const AccountsDatabase = new Keyv("sqlite://database/accounts.sqlite");
 /**
  * This functions validates the username and password of an account.
  * @param {{Username: string, Password: string}} ValidateObject
- * @returns {{Passed: boolean, FailureReason: string|null}} ValidateResult
+ * @returns {Promise<{Passed: boolean, FailureReason: string|null}>} ValidateResult
  */
-function ValidateAccount(ValidateObject) {
+async function ValidateAccount(ValidateObject) {
     // Username and password variables.
     const Username = ValidateObject.Username;
     const Password = ValidateObject.Password;
@@ -62,6 +62,17 @@ function ValidateAccount(ValidateObject) {
         return { Passed: false, FailureReason: "Username can only be letters and numbers." };
     }
 
+    // Check if account username is already being used.
+    let AccountAlreadyBeingUsed = false;
+    try {
+        AccountAlreadyBeingUsed = await AccountsDatabase.has(Username.toLowerCase());
+    } catch (Error) {
+        AccountAlreadyBeingUsed = true;
+    }
+    if (AccountAlreadyBeingUsed == true) {
+        return { Passed: false, FailureReason: "Username is already being used." };
+    }
+
     // Return passed as true if no checks failed.
     return { Passed: true, FailureReason: null };
 }
@@ -76,7 +87,7 @@ function ValidateAccount(ValidateObject) {
  */
 async function CreateAccount(Username, Password) {
     // Validate the account details, and handle failure accordingly.
-    const ValidateResult = ValidateAccount({ Username: Username, Password: Password });
+    const ValidateResult = await ValidateAccount({ Username: Username, Password: Password });
     if (ValidateResult.Passed == false) {
         return { Success: false, Error: `Invalid account details: ${ValidateResult.FailureReason}`, Account: null };
     }
