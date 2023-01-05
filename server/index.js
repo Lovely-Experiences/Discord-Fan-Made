@@ -40,6 +40,32 @@ AssetRequests("client/assets/public/", "/assets/");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Listen for css and javascript requests.
+for (const File of FileSystem.readdirSync("client/css/")) {
+    ExpressApplication.get("/web/css/" + File, function (Request, Response) {
+        Response.sendFile("client/css/" + File, { root: "./" });
+    });
+}
+
+for (const File of FileSystem.readdirSync("client/javascript/")) {
+    ExpressApplication.get("/web/javascript/" + File, function (Request, Response) {
+        Response.sendFile("client/javascript/" + File, { root: "./" });
+    });
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Listen for user profile picture requests.
+// If the user doesn't have a profile picture, a random template one is provided instead.
+ExpressApplication.get("/assets/private/images/user/:id", function (Request, Response) {
+    const UserProfilePicture = null; // Soon.
+    if (UserProfilePicture == null) {
+        Response.sendFile(`client/assets/private/images/user/${Math.floor(Math.random() * 3) + 1}.png`, { root: "./" });
+    };
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Start listening to requests made to the provided port.
 ExpressApplication.listen(Configuration.Port, async function () {
     console.log(`Listening to port ${Configuration.Port}.`);
@@ -56,7 +82,8 @@ async function AdminAccountPrompt() {
     try {
         const UsernameTaken = await AccountsDatabase.has("admin");
         if (UsernameTaken == true) {
-            console.log("[Admin Creation]: Admin account creation skipped, username 'admin' is already in use.");
+            // console.log("[Admin Creation]: Admin account creation skipped, username 'admin' is already in use.");
+            // @jacobhumston - I feel like this gets annoying sometimes, so it will be commented out for now.
         } else {
             const Password = ConsolePrompt("[Admin Creation]: Please enter a password for the new admin account: ", { echo: "*" });
             const Account = await Modules.Accounts.CreateAccount("admin", Password);

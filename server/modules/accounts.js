@@ -2,6 +2,7 @@ const Keyv = require("keyv");
 const { v4: CreateUUID } = require("uuid");
 const Bcrypt = require("bcrypt");
 const AccountsDatabase = new Keyv("sqlite://database/accounts.sqlite");
+const SessionsDatabase = new Keyv("sqlite://database/sessions.sqlite");
 const Configuration = require("../configuration.json");
 
 module.exports = {

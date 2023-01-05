@@ -1,1 +1,2 @@
 accounts.sqlite
+sessions.sqlite
