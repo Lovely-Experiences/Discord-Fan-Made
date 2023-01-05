@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="client/assets/images/icon/white.png" height="150px" width="150px">
-  <source media="(prefers-color-scheme: light)" srcset="client/assets/images/icon/white.png" height="150px" width="150px">
+  <source media="(prefers-color-scheme: dark)" srcset="client/assets/public/images/icon/white.png" height="150px" width="150px">
+  <source media="(prefers-color-scheme: light)" srcset="client/assets/public/images/icon/black.png" height="150px" width="150px">
   <img alt="Icon">
 </picture>
 

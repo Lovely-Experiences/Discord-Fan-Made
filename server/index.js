@@ -1,127 +1,42 @@
-// Variables & Required Modules
+// Variables & required modules
 const Express = require("express");
-const FileSystem = require("fs");
-const Bcrypt = require('bcrypt');
 const Keyv = require("keyv");
-const { v4: CreateUUID } = require("uuid");
 const ConsolePrompt = require('prompt-sync')();
+const FileSystem = require("fs");
 const Configuration = require("./configuration.json");
 const ExpressApplication = Express();
 const AccountsDatabase = new Keyv("sqlite://database/accounts.sqlite");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * This functions validates the username and password of an account.
- * @param {{Username: string, Password: string}} ValidateObject
- * @returns {Promise<{Passed: boolean, FailureReason: string|null}>} ValidateResult
- */
-async function ValidateAccount(ValidateObject) {
-    // Username and password variables.
-    const Username = ValidateObject.Username;
-    const Password = ValidateObject.Password;
-
-    // Characters variable. A-Z 0-9
-    const Characters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
-    // Check if username and password are null or undefined.
-    if ((Username == null || Username == undefined) || (Password == null || Password == undefined)) {
-        return { Passed: false, FailureReason: "Accounts require a username and password." };
-    }
-
-    // Check to make sure name and password are a string.
-    if (typeof (Username) != "string" || typeof (Password) != "string") {
-        return { Passed: false, FailureReason: "Account credentials must be strings." };
-    }
-
-    // Check username and password length.
-    if ((Username.length < 3 || Username.length > 20) || (Password.length < 5 || Password.length > 100)) {
-        return { Passed: false, FailureReason: "Username must be between 3-20 characters long and password must be between 8-100 characters long." };
-    }
-
-    // Check if the password is not just letters and numbers.
-    let PasswordContainsSpecialCharacters = false;
-    for (I = 0; I < Password.length; I++) {
-        const Character = Password.charAt(I);
-        if (Characters.indexOf(Character.toUpperCase()) == -1) {
-            PasswordContainsSpecialCharacters = true;
-        }
-    }
-    if (PasswordContainsSpecialCharacters == false) {
-        return { Passed: false, FailureReason: "Password must contain a special character." };
-    }
-
-    // Check if the username is only letters and numbers.
-    let UsernameContainsSpecialCharacters = false;
-    for (I = 0; I < Username.length; I++) {
-        const Character = Username.charAt(I);
-        if (Characters.indexOf(Character.toUpperCase()) == -1) {
-            UsernameContainsSpecialCharacters = true;
-        }
-    }
-    if (UsernameContainsSpecialCharacters == true) {
-        return { Passed: false, FailureReason: "Username can only be letters and numbers." };
-    }
-
-    // Check if account username is already being used.
-    let AccountAlreadyBeingUsed = false;
-    try {
-        AccountAlreadyBeingUsed = await AccountsDatabase.has(Username.toLowerCase());
-    } catch (Error) {
-        AccountAlreadyBeingUsed = true;
-    }
-    if (AccountAlreadyBeingUsed == true) {
-        return { Passed: false, FailureReason: "Username is already being used." };
-    }
-
-    // Return passed as true if no checks failed.
-    return { Passed: true, FailureReason: null };
-}
+// Server modules.
+const Modules = {
+    Accounts: require("./modules/accounts.js")
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * This functions creates an account. Uses the validator function to validate everything.
- * @param {string} Username 
- * @param {string} Password
- * @returns {Promise<{Success: boolean, Error: string|null, Account: {Username: string, PasswordHash: string, UID: string}|null}>} SuccessResult 
+ * Listen for asset get requests.
+ * @param {string} BasePath
+ * @param {string} Path 
+ * @returns {void}
  */
-async function CreateAccount(Username, Password) {
-    // Validate the account details, and handle failure accordingly.
-    const ValidateResult = await ValidateAccount({ Username: Username, Password: Password });
-    if (ValidateResult.Passed == false) {
-        return { Success: false, Error: `Invalid account details: ${ValidateResult.FailureReason}`, Account: null };
+function AssetRequests(BasePath, Path) {
+    for (const File of FileSystem.readdirSync(BasePath)) {
+        const IsFolder = File.split(".")[1] == undefined;
+        if (IsFolder == true) {
+            AssetRequests(BasePath + File + "/", Path + File + "/");
+        } else {
+            ExpressApplication.get(Path + File, function (Request, Response) {
+                Response.sendFile(BasePath + File, { root: "./" });
+            });
+        }
     }
-
-    // Hash password.
-    let PasswordHash = null;
-    let PasswordHashSuccess = true;
-    try {
-        const Hash = await Bcrypt.hash(Password, Configuration.Salt);
-        PasswordHash = Hash;
-    } catch (Error) {
-        PasswordHashSuccess = false;
-    }
-
-    // Create account's user ID.
-    const UID = CreateUUID();
-
-    // Save the account to the database, note that the plain text password is NOT saved.
-    // Accounts are saved by username in all lowercase.
-    let AccountSaveSuccess = true;
-    try {
-        await AccountsDatabase.set(Username.toLowerCase(), { Username: Username, PasswordHash: PasswordHash, UID: UID });
-    } catch (Error) {
-        AccountSaveSuccess = false;
-    }
-
-    // If nothing went wrong, the account is created.
-    if (PasswordHashSuccess == true && AccountSaveSuccess == true) {
-        return { Success: true, Error: false, Account: { Username: Username, PasswordHash: PasswordHash, UID: UID } };
-    } else {
-        return { Success: false, Error: "An unexpected error occurred.", Account: null };
-    }
+    return;
 }
+
+AssetRequests("client/assets/public/", "/assets/");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,24 +48,31 @@ ExpressApplication.listen(Configuration.Port, async function () {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Ask to create an admin account if the account "admin" does not already exist.
-try {
-    (async function () {
+/**
+ * Ask to create an admin account if the account "admin" does not already exist.
+ * @returns {Promise<void>}
+ */
+async function AdminAccountPrompt() {
+    try {
         const UsernameTaken = await AccountsDatabase.has("admin");
         if (UsernameTaken == true) {
-            console.log("Admin account creation skipped, username 'admin' is already in use.");
+            console.log("[Admin Creation]: Admin account creation skipped, username 'admin' is already in use.");
         } else {
-            const Password = ConsolePrompt("Please create the password for the admin account: ", { echo: "*" });
-            const Account = await CreateAccount("admin", Password);
+            const Password = ConsolePrompt("[Admin Creation]: Please enter a password for the new admin account: ", { echo: "*" });
+            const Account = await Modules.Accounts.CreateAccount("admin", Password);
             if (Account.Success == true) {
-                console.log("Admin account creation was a success!");
+                console.log("[Admin Creation]: Success!");
             } else {
                 throw Account.Error;
             }
         }
-    })();
-} catch (Error) {
-    throw `Admin creation error: ${Error}`;
+    } catch (Error) {
+        console.log(`[Admin Creation]: Something went wrong: ${Error}`);
+        process.exit();
+    }
+    return;
 }
+
+AdminAccountPrompt();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
