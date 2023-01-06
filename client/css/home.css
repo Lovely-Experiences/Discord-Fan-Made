@@ -15,12 +15,47 @@ button
 html,
 body
 {
-    padding: 15px;
+    padding: 0;
+    margin: 0;
+    background-color: rgb(51, 47, 47);
+}
+
+#Container
+{
+    width: 75%;
+    max-width: 600px;
+    margin: auto;
+    padding: 25px;
+    background-color: rgb(65, 60, 60);
+    border-radius: 25px;
+    color: white;
+    margin-top: 15px;
+}
+
+h1,
+p
+{
+    margin: 0px;
+    margin-bottom: 15px;
 }
 
 p
 {
     font-size: large;
+}
+
+a:visited
+{
+    color: white;
+}
+
+a:active
+{
+    color: white;
+}
+
+a:hover {
+    color: lightgray;
 }
 
 #LoginButton,
@@ -33,9 +68,20 @@ p
     border-radius: 10px;
     border: none;
     color: white;
-    margin: 10px;
     width: 100%;
     max-width: 250px;
+    margin: 10px;
+}
+
+@media (max-width: 660px)
+{
+
+    #LoginButton,
+    #SignupButton
+    {
+        margin: 0px;
+        margin-bottom: 15px;
+    }
 }
 
 #LoginButton
