@@ -66,6 +66,13 @@ ExpressApplication.get("/assets/private/images/user/:id", function (Request, Res
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Listen for home page requests.
+ExpressApplication.get("/", function (Request, Response) {
+    Response.sendFile("client/pages/public/home.html", { root: "./" });
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Start listening to requests made to the provided port.
 ExpressApplication.listen(Configuration.Port, async function () {
     console.log(`Listening to port ${Configuration.Port}.`);

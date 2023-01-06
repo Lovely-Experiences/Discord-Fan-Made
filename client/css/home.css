@@ -1,0 +1,59 @@
+@font-face
+{
+    font-family: Roboto-Regular;
+    src: url("../../assets/fonts/Roboto/Roboto-Regular.ttf");
+}
+
+html,
+body,
+button
+{
+    font-family: Roboto-Regular, Arial, sans-serif;
+    text-align: center;
+}
+
+html,
+body
+{
+    padding: 15px;
+}
+
+p
+{
+    font-size: large;
+}
+
+#LoginButton,
+#SignupButton
+{
+    padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: large;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    margin: 10px;
+    width: 100%;
+    max-width: 250px;
+}
+
+#LoginButton
+{
+    background-color: rgb(150, 202, 97);
+}
+
+#SignupButton
+{
+    background-color: rgb(255, 105, 105);
+}
+
+#LoginButton:hover
+{
+    box-shadow: 0px 0px 5px 5px rgba(150, 202, 97, 0.6);
+}
+
+#SignupButton:hover
+{
+    box-shadow: 0px 0px 5px 5px rgba(255, 105, 105, 0.6);
+}
