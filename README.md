@@ -19,7 +19,7 @@ To get started you'll need to install node.js if you have not already from https
 Once you have node.js installed, it's advised to create a folder specifically for this project somewhere on your computer.
 
 You'll want to click the **Code** button, then download the ZIP file. Then simply unzip it into the folder you created.
-> **Note** - You can also use git if you know how, however that will not be explained here. **Link:** https://github.com/jacobhumston-school/Discord-Fan-Made.git
+> **Note** - You can also use git if you know how, however that will not be explained here. [Learn more.](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
 
 Once you have the files in place, you will want to run the following commands to install dependencies.
 
