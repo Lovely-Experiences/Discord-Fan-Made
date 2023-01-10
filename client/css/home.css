@@ -54,7 +54,8 @@ a:active
     color: white;
 }
 
-a:hover {
+a:hover
+{
     color: lightgray;
 }
 
