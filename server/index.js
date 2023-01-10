@@ -93,6 +93,10 @@ async function AdminAccountPrompt() {
             // @jacobhumston - I feel like this gets annoying sometimes, so it will be commented out for now.
         } else {
             const Password = ConsolePrompt("[Admin Creation]: Please enter a password for the new admin account: ", { echo: "*" });
+            const ReEnterPassword = ConsolePrompt("[Admin Creation]: Please re-enter the same password for the new admin account: ", { echo: "*" });
+            if (Password != ReEnterPassword) {
+                throw "Passwords do not match.";
+            }
             const Account = await Modules.Accounts.CreateAccount("admin", Password);
             if (Account.Success == true) {
                 console.log("[Admin Creation]: Success!");

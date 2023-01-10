@@ -79,7 +79,7 @@ module.exports = {
      * This functions creates an account. Uses the validator function to validate everything.
      * @param {string} Username 
      * @param {string} Password
-     * @returns {Promise<{Success: boolean, Error: string|null, Account: {Username: string, PasswordHash: string, UID: string}|null}>} SuccessResult 
+     * @returns {Promise<{Success: boolean, Error: string|null, Account: {Username: string, PasswordHash: string, UID: string, CreatedAt: Date}|null}>} SuccessResult 
      */
     CreateAccount: async function (Username, Password) {
         // Validate the account details, and handle failure accordingly.
@@ -101,12 +101,15 @@ module.exports = {
         // Create account's user ID.
         const UID = CreateUUID();
 
+        // Create account 'CreatedAt' date.
+        const CreatedAt = new Date();
+
         // Save the account to the database, note that the plain text password is NOT saved.
         // Accounts are saved by username in all lowercase.
         let AccountSaveSuccess = true;
         if (PasswordHashSuccess == true) {
             try {
-                await AccountsDatabase.set(Username.toLowerCase(), { Username: Username, PasswordHash: PasswordHash, UID: UID });
+                await AccountsDatabase.set(Username.toLowerCase(), { Username: Username, PasswordHash: PasswordHash, UID: UID, CreatedAt: CreatedAt });
             } catch (Error) {
                 AccountSaveSuccess = false;
             }
@@ -114,7 +117,7 @@ module.exports = {
 
         // If nothing went wrong, the account is created.
         if (PasswordHashSuccess == true && AccountSaveSuccess == true) {
-            return { Success: true, Error: false, Account: { Username: Username, PasswordHash: PasswordHash, UID: UID } };
+            return { Success: true, Error: false, Account: { Username: Username, PasswordHash: PasswordHash, UID: UID, CreatedAt: CreatedAt } };
         } else {
             return { Success: false, Error: "An unexpected error occurred.", Account: null };
         }
