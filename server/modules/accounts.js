@@ -7,6 +7,13 @@ const Configuration = require("../configuration.json");
 
 module.exports = {
     /**
+     * AccountObject 
+     * @typedef {{Username: string, PasswordHash: string, UID: string, CreatedAt: Date, IsAdmin: boolean, IsBot: boolean}} AccountObject
+     */
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
      * This functions validates the username and password of an account.
      * @param {{Username: string, Password: string}} ValidateObject
      * @returns {Promise<{Passed: boolean, FailureReason: string|null}>} ValidateResult
@@ -79,14 +86,20 @@ module.exports = {
      * This functions creates an account. Uses the validator function to validate everything.
      * @param {string} Username 
      * @param {string} Password
-     * @returns {Promise<{Success: boolean, Error: string|null, Account: {Username: string, PasswordHash: string, UID: string, CreatedAt: Date}|null}>} SuccessResult 
+     * @param {{IsAdmin: boolean?, IsBot: boolean?}?} ExtraInfo
+     * @returns {Promise<{Success: boolean, Error: string|null, Account: AccountObject|null}>} SuccessResult 
      */
-    CreateAccount: async function (Username, Password) {
+    CreateAccount: async function (Username, Password, ExtraInfo) {
         // Validate the account details, and handle failure accordingly.
         const ValidateResult = await this.ValidateAccount({ Username: Username, Password: Password });
         if (ValidateResult.Passed == false) {
             return { Success: false, Error: `Invalid account details: ${ValidateResult.FailureReason}`, Account: null };
         }
+
+        // Setting the default values if they are not provided.
+        ExtraInfo = ExtraInfo ?? {};
+        const IsBot = ExtraInfo.IsBot ?? false;
+        const IsAdmin = ExtraInfo.IsAdmin ?? false;
 
         // Hash password.
         let PasswordHash = null;
@@ -109,7 +122,7 @@ module.exports = {
         let AccountSaveSuccess = true;
         if (PasswordHashSuccess == true) {
             try {
-                await AccountsDatabase.set(Username.toLowerCase(), { Username: Username, PasswordHash: PasswordHash, UID: UID, CreatedAt: CreatedAt });
+                await AccountsDatabase.set(Username.toLowerCase(), { Username: Username, PasswordHash: PasswordHash, UID: UID, CreatedAt: CreatedAt, IsAdmin: IsAdmin, IsBot: IsBot });
             } catch (Error) {
                 AccountSaveSuccess = false;
             }
@@ -117,9 +130,36 @@ module.exports = {
 
         // If nothing went wrong, the account is created.
         if (PasswordHashSuccess == true && AccountSaveSuccess == true) {
-            return { Success: true, Error: false, Account: { Username: Username, PasswordHash: PasswordHash, UID: UID, CreatedAt: CreatedAt } };
+            return { Success: true, Error: false, Account: { Username: Username, PasswordHash: PasswordHash, UID: UID, CreatedAt: CreatedAt, IsAdmin: IsAdmin, IsBot: IsBot } };
         } else {
             return { Success: false, Error: "An unexpected error occurred.", Account: null };
         }
+    },
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Get the account details of a user by username.
+     * @param {string} Username
+     * @returns {Promise<{Success: boolean, Error: string|null, Account: AccountObject|null}>} 
+     */
+    GetAccount: async function (Username) {
+        let Success = true;
+        let Error = null;
+        let Account = {};
+        try {
+            Account = await AccountsDatabase.get(Username.toLowerCase());
+            if (Account == null || Account == undefined) {
+                Error = "Account does not exist.";
+            }
+        } catch (ErrorResult) {
+            Error = ErrorResult;
+        }
+        if (Error != null) {
+            Success = false;
+            Account = null;
+        }
+        return { Success: Success, Error: Error, Account: Account };
     }
+
 };

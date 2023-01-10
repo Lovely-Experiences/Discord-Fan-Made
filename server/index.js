@@ -66,6 +66,11 @@ ExpressApplication.get("/assets/private/images/user/:id", function (Request, Res
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Require the api file to execute and listen for api requests.
+require("./api.js")(ExpressApplication);
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Listen for home page requests.
 ExpressApplication.get("/", function (Request, Response) {
     Response.sendFile("client/pages/public/home.html", { root: "./" });
@@ -97,7 +102,7 @@ async function AdminAccountPrompt() {
             if (Password != ReEnterPassword) {
                 throw "Passwords do not match.";
             }
-            const Account = await Modules.Accounts.CreateAccount("admin", Password);
+            const Account = await Modules.Accounts.CreateAccount("admin", Password, { IsAdmin: true });
             if (Account.Success == true) {
                 console.log("[Admin Creation]: Success!");
             } else {
