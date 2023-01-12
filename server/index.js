@@ -57,9 +57,16 @@ for (const File of FileSystem.readdirSync("client/javascript/")) {
 
 // Listen for user profile picture requests.
 // If the user doesn't have a profile picture, a random template one is provided instead.
-ExpressApplication.get("/assets/private/images/user/:id", function (Request, Response) {
-    const UserProfilePicture = null; // Soon.
-    if (UserProfilePicture == null) {
+ExpressApplication.get("/assets/private/images/user/:username", async function (Request, Response) {
+    const AccountData = await Modules.Accounts.GetAccount(Request.params.username);
+    let ImageName = null;
+    if (AccountData.Success) {
+        ImageName = AccountData.Account.ProfilePicture;
+    }
+    const FileExists = FileSystem.existsSync("./client/assets/private/images/user/provided/" + ImageName);
+    if (FileExists == true) {
+        Response.sendFile(`client/assets/private/images/user/provided/` + ImageName, { root: "./" });
+    } else {
         Response.sendFile(`client/assets/private/images/user/${Math.floor(Math.random() * 3) + 1}.png`, { root: "./" });
     };
 });

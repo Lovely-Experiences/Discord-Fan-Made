@@ -8,21 +8,18 @@ const Configuration = require("../configuration.json");
 module.exports = {
     /**
      * AccountObject 
-     * @typedef {{Username: string, PasswordHash: string, UID: string, CreatedAt: Date, IsAdmin: boolean, IsBot: boolean}} AccountObject
+     * @typedef {{Username: string, PasswordHash: string, UID: string, CreatedAt: Date, IsAdmin: boolean, IsBot: boolean, ProfilePicture: string|null}} AccountObject
      */
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * This functions validates the username and password of an account.
-     * @param {{Username: string, Password: string}} ValidateObject
-     * @returns {Promise<{Passed: boolean, FailureReason: string|null}>} ValidateResult
+     * @param {string} Username
+     * @param {string} Password
+     * @returns {Promise<{Passed: boolean, FailureReason: string|null}>}
      */
-    ValidateAccount: async function (ValidateObject) {
-        // Username and password variables.
-        const Username = ValidateObject.Username;
-        const Password = ValidateObject.Password;
-
+    ValidateAccount: async function (Username, Password) {
         // Characters variable. A-Z 0-9
         const Characters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
@@ -91,7 +88,7 @@ module.exports = {
      */
     CreateAccount: async function (Username, Password, ExtraInfo) {
         // Validate the account details, and handle failure accordingly.
-        const ValidateResult = await this.ValidateAccount({ Username: Username, Password: Password });
+        const ValidateResult = await this.ValidateAccount(Username, Password);
         if (ValidateResult.Passed == false) {
             return { Success: false, Error: `Invalid account details: ${ValidateResult.FailureReason}`, Account: null };
         }
@@ -151,6 +148,8 @@ module.exports = {
             Account = await AccountsDatabase.get(Username.toLowerCase());
             if (Account == null || Account == undefined) {
                 Error = "Account does not exist.";
+            } else {
+                Account.CreatedAt = new Date(Account.CreatedAt);
             }
         } catch (ErrorResult) {
             Error = ErrorResult;
