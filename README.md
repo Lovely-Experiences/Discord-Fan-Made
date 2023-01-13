@@ -80,4 +80,4 @@ If you get any errors that you are unsure how to fix, please report them as an [
 
 *This project is not affiliated nor endorsed by Discord.*
 
-***By Lovely Experiences.***
+***By Lovely Experiences, made with ❤️.***
