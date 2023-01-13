@@ -20,7 +20,7 @@ module.exports = {
      * @returns {Promise<{Passed: boolean, FailureReason: string|null}>}
      */
     ValidateAccount: async function (Username, Password) {
-        // Characters variable. A-Z 0-9
+        // Characters variable. A-Z 0-9 _
         const Characters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_"];
 
         // Check if username and password are null or undefined.
