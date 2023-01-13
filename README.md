@@ -39,7 +39,7 @@ To configure the project, you can edit the configuration file found in `server/c
 
 ### Configuration Values
 
-Bellow is a table that describes all the configuration options. It's advised not to change options that you don't understand completely.
+Bellow is a table that describes all the configuration options. It's advised to not change options that you don't understand completely.
 
 Value | Description | Default
 ----- | ----------- | -------
@@ -50,7 +50,7 @@ Value | Description | Default
 
 ### Default Configuration
 
-Bellow is the default configuration in plain JSON, if needed.
+Bellow is the default configuration in plain JSON. [Link to file.](server/configuration.json)
 
 ```json
 {
