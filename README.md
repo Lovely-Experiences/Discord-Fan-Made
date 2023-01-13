@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="client/assets/public/images/icon/zoomed-white.png" height="150px" width="150px">
-  <source media="(prefers-color-scheme: light)" srcset="client/assets/public/images/icon/zoomed-black.png" height="150px" width="150px">
+  <source media="(prefers-color-scheme: dark)" srcset="client/assets/public/images/icon/zoomed-white.png" height="100px" width="100px">
+  <source media="(prefers-color-scheme: light)" srcset="client/assets/public/images/icon/zoomed-black.png" height="100px" width="100px">
   <img alt="Discord Fan Made">
 </picture>
 
