@@ -21,7 +21,7 @@ module.exports = {
      */
     ValidateAccount: async function (Username, Password) {
         // Characters variable. A-Z 0-9
-        const Characters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+        const Characters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_"];
 
         // Check if username and password are null or undefined.
         if ((Username == null || Username == undefined) || (Password == null || Password == undefined)) {
@@ -34,8 +34,13 @@ module.exports = {
         }
 
         // Check username and password length.
-        if ((Username.length < 3 || Username.length > 20) || (Password.length < 5 || Password.length > 100)) {
-            return { Passed: false, FailureReason: "Username must be between 3-20 characters long and password must be between 8-100 characters long." };
+        if ((Username.length < 3 || Username.length > 20) || Password.length < 5) {
+            return { Passed: false, FailureReason: "Username must be between 3-20 characters long and password must be between at least 8 characters long." };
+        }
+
+        // Check to make sure the password isn't too long.
+        if (Buffer.byteLength(Password, "utf-8") > 70) {
+            return { Passed: false, FailureReason: "Password is too long, must be under ~70 characters." };
         }
 
         // Check if the password is not just letters and numbers.
@@ -50,7 +55,7 @@ module.exports = {
             return { Passed: false, FailureReason: "Password must contain a special character." };
         }
 
-        // Check if the username is only letters and numbers.
+        // Check if the username is only letters and numbers. (Also includes '_'.)
         let UsernameContainsSpecialCharacters = false;
         for (I = 0; I < Username.length; I++) {
             const Character = Username.charAt(I);
@@ -60,6 +65,11 @@ module.exports = {
         }
         if (UsernameContainsSpecialCharacters == true) {
             return { Passed: false, FailureReason: "Username can only be letters and numbers." };
+        }
+
+        // Check to make sure the username does not start or end with an underscore.
+        if (Username.startsWith("_") || Username.endsWith("_")) {
+            return { Passed: false, FailureReason: "Username cannot begin or end with an underscore." };
         }
 
         // Check if account username is already being used.
