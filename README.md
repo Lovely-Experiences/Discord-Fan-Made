@@ -37,7 +37,31 @@ Make sure to include the correct path to the folder. In some (not all) file expl
 
 To configure the project, you can edit the configuration file found in `server/configuration.json`.
 
-Explanations coming soon...
+### Configuration Values
+
+Bellow is a table that describes all the configuration options. It's advised not to change options that you don't understand completely.
+
+Value | Description | Default
+----- | ----------- | -------
+**Port** | The port that the web server should listen to. | `4000`
+**WebSocketOptions** | Options of the server websocket. All options can be found [here](https://github.com/websockets/ws/blob/HEAD/doc/ws.md#new-websocketserveroptions-callback). | `{ "port": 4001 }`
+**BcryptSalt** | The amount of salt rounds to use when hashing passwords. Before changing this value, please [read this](https://github.com/kelektiv/node.bcrypt.js#a-note-on-rounds). | `10`
+**AdminAccountName** | This is the name that is used when creating the admin account. | `Admin`
+
+### Default Configuration
+
+Bellow is the default configuration in plain JSON, if needed.
+
+```json
+{
+    "Port": 4000,
+    "WebSocketOptions": {
+        "port": 4001
+    },
+    "BcryptSalt": 10,
+    "AdminAccountName": "Admin"
+}
+```
 
 ## Startup
 

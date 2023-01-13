@@ -99,9 +99,10 @@ ExpressApplication.listen(Configuration.Port, async function () {
  */
 async function AdminAccountPrompt() {
     try {
-        const UsernameTaken = await AccountsDatabase.has("admin");
+        const UsernameTaken = await AccountsDatabase.has(Configuration.AdminAccountName.toLowerCase());
+        // Note that if the account (username) somehow gets taken before you set the password, the account that was made will NOT get admin privileges.
         if (UsernameTaken == true) {
-            // console.log("[Admin Creation]: Admin account creation skipped, username 'admin' is already in use.");
+            // console.log("[Admin Creation]: Admin account creation skipped, admin username is already in use.");
             // @jacobhumston - I feel like this gets annoying sometimes, so it will be commented out for now.
         } else {
             const Password = ConsolePrompt("[Admin Creation]: Please enter a password for the new admin account: ", { echo: "*" });
@@ -109,7 +110,7 @@ async function AdminAccountPrompt() {
             if (Password != ReEnterPassword) {
                 throw "Passwords do not match.";
             }
-            const Account = await Modules.Accounts.CreateAccount("admin", Password, { IsAdmin: true });
+            const Account = await Modules.Accounts.CreateAccount(Configuration.AdminAccountName, Password, { IsAdmin: true });
             if (Account.Success == true) {
                 console.log("[Admin Creation]: Success!");
             } else {

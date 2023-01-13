@@ -8,7 +8,7 @@ const Configuration = require("../configuration.json");
 module.exports = {
     /**
      * AccountObject 
-     * @typedef {{Username: string, PasswordHash: string, UID: string, CreatedAt: Date, IsAdmin: boolean, IsBot: boolean, ProfilePicture: string|null}} AccountObject
+     * @typedef {{Username: string, PasswordHash: string, UID: string, CreatedAt: Date, IsAdmin: boolean, IsBot: boolean, ProfilePicture: string|undefined}} AccountObject
      */
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ module.exports = {
         let PasswordHash = null;
         let PasswordHashSuccess = true;
         try {
-            const Hash = await Bcrypt.hash(Password, Configuration.Salt);
+            const Hash = await Bcrypt.hash(Password, Configuration.BcryptSalt);
             PasswordHash = Hash;
         } catch (Error) {
             PasswordHashSuccess = false;

@@ -28,7 +28,8 @@ module.exports = function (ExpressApplication) {
                 UID: AccountData.Account.UID,
                 CreatedAt: AccountData.Account.CreatedAt,
                 IsBot: AccountData.Account.IsBot,
-                IsAdmin: AccountData.Account.IsAdmin
+                IsAdmin: AccountData.Account.IsAdmin,
+                ProfilePicture: AccountData.Account.ProfilePicture ?? null
             };
         } else {
             Data.Success = false;

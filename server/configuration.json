@@ -1,5 +1,8 @@
 {
     "Port": 4000,
-    "WebsocketPort": 4001,
-    "Salt": 10
+    "WebSocketOptions": {
+        "port": 4001
+    },
+    "BcryptSalt": 10,
+    "AdminAccountName": "Admin"
 }
