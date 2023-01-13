@@ -79,3 +79,5 @@ If you get any errors that you are unsure how to fix, please report them as an [
 - **Miscellaneous Icons:** https://fonts.google.com/icons?icon.style=Rounded&icon.set=Material+Icons
 
 *This project is not affiliated nor endorsed by Discord.*
+
+***By Lovely Experiences.***
