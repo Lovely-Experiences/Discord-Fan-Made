@@ -73,6 +73,13 @@ ExpressApplication.get("/assets/private/images/user/:username", async function (
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Signup / Login page.
+ExpressApplication.get("/login", function (Request, Response) {
+    Response.sendFile("client/pages/public/login.html", { root: "./" });
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Require the api file to execute and listen for api requests.
 require("./api.js")(ExpressApplication);
 
@@ -94,7 +101,7 @@ ExpressApplication.listen(Configuration.Port, async function () {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Ask to create an admin account if the account "admin" does not already exist.
+ * Ask to create an admin account if the admin account does not already exist.
  * @returns {Promise<void>}
  */
 async function AdminAccountPrompt() {
